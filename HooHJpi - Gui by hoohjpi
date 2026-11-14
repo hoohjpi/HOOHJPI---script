@@ -1,0 +1,294 @@
+local P=game:GetService("Players")
+local R=game:GetService("RunService")
+local pl=P.LocalPlayer
+local pg=pl:WaitForChild("PlayerGui")
+local G=Color3.fromRGB(40,220,100)
+local B=Color3.fromRGB(5,5,5)
+local D=Color3.fromRGB(10,35,20)
+local old=pg:FindFirstChild("HoohjpiGUI")
+if old then old:Destroy() end
+
+local gui=Instance.new("ScreenGui")
+gui.Name="HoohjpiGUI"
+gui.ResetOnSpawn=false
+gui.Parent=pg
+
+local function add(c,n,parent,t)
+ local o=Instance.new(c)
+ o.Name=n
+ for k,v in pairs(t) do o[k]=v end
+ o.Parent=parent
+ return o
+end
+local function corner(o,r)
+ Instance.new("UICorner",o).CornerRadius=UDim.new(0,r or 7)
+end
+
+local f=add("Frame","Main",gui,{
+ Size=UDim2.fromOffset(280,195),
+ Position=UDim2.new(.5,-140,.5,-97),
+ BackgroundColor3=B,BorderColor3=G,
+ Active=true,Draggable=true
+})
+corner(f)
+
+local function btn(n,t,x,y,w,h,parent)
+ local o=add("TextButton",n,parent or f,{
+  Position=UDim2.fromOffset(x,y),
+  Size=UDim2.fromOffset(w,h),
+  BackgroundColor3=D,Text=t,TextColor3=G,
+  Font=Enum.Font.GothamBold,TextSize=13
+ })
+ corner(o)
+ return o
+end
+
+add("TextLabel","Title",f,{
+ Size=UDim2.new(1,-35,0,32),
+ BackgroundColor3=D,
+ Text="HooHJpi-Gui by hoohjpi 2.0",
+ TextColor3=G,TextSize=13,
+ Font=Enum.Font.GothamBold
+})
+
+local close=btn("Close","X",245,0,35,32)
+
+local speed=add("TextLabel","Speed",f,{
+ Position=UDim2.fromOffset(8,37),
+ Size=UDim2.fromOffset(95,21),
+ BackgroundColor3=D,
+ Text="Speed:0",
+ TextColor3=G,TextSize=11,
+ Font=Enum.Font.GothamBold
+})
+corner(speed)
+
+local flight=btn("Flight","FLIGHT:OFF",8,64,264,27)
+local fs=55
+
+local inp=add("TextBox","FlySpeed",f,{
+ Position=UDim2.fromOffset(8,98),
+ Size=UDim2.fromOffset(264,27),
+ BackgroundColor3=D,
+ Text="55",TextColor3=G,
+ ClearTextOnFocus=false
+})
+corner(inp)
+
+inp.FocusLost:Connect(function(enter)
+ local n=tonumber(inp.Text)
+ if enter and n and n>0 and n<=300 then
+  fs=n
+ else
+  inp.Text=tostring(fs)
+ end
+end)local ncOn=false
+local sv={}
+local nc=btn("Noclip","NOCLIP:OFF",8,132,264,27)
+
+local function sn(v)
+ ncOn=v
+ nc.Text=v and "NOCLIP:ON" or "NOCLIP:OFF"
+ if not v then
+  for q,val in pairs(sv) do
+   if q.Parent then q.CanCollide=val end
+  end
+  table.clear(sv)
+ end
+end
+
+nc.MouseButton1Click:Connect(function()
+ sn(not ncOn)
+end)
+
+local box=add("TextBox","Link",f,{
+ Position=UDim2.fromOffset(8,166),
+ Size=UDim2.fromOffset(195,23),
+ BackgroundColor3=D,
+ Text="https://discord.gg/WWN4GTS9",
+ TextColor3=G,TextSize=10,
+ ClearTextOnFocus=false
+})
+corner(box)
+
+local copy=btn("Copy","COPY",210,166,62,23)
+copy.MouseButton1Click:Connect(function()
+ if typeof(setclipboard)=="function" then
+  pcall(setclipboard,box.Text)
+ end
+end)
+
+local board=add("Frame","MorePanel",f,{
+ Position=UDim2.fromOffset(324,32),
+ Size=UDim2.fromOffset(155,163),
+ BackgroundColor3=B,
+ BorderColor3=G,
+ Visible=false
+})
+corner(board)
+
+add("TextLabel","MoreTitle",board,{
+ Size=UDim2.new(1,0,0,30),
+ BackgroundColor3=D,
+ Text="MORE FEATURES",
+ TextColor3=G,
+ TextSize=12,
+ Font=Enum.Font.GothamBold
+})
+
+add("TextLabel","Info",board,{
+ Position=UDim2.fromOffset(8,38),
+ Size=UDim2.new(1,-16,1,-46),
+ BackgroundTransparency=1,
+ Text="Future features\n\nReserved slots",
+ TextColor3=G,
+ TextSize=12,
+ TextWrapped=true
+})
+
+local arrow=btn("Arrow","→",280,48,38,100)
+arrow.MouseButton1Click:Connect(function()
+ board.Visible=not board.Visible
+ arrow.Text=board.Visible and "←" or "→"
+end)local up=add("TextButton","Up",gui,{
+ Position=UDim2.new(1,-120,.55,0),
+ Size=UDim2.fromOffset(52,38),
+ BackgroundColor3=D,Text="UP",
+ TextColor3=G,Visible=false
+})
+local down=add("TextButton","Down",gui,{
+ Position=UDim2.new(1,-62,.55,0),
+ Size=UDim2.fromOffset(52,38),
+ BackgroundColor3=D,Text="DOWN",
+ TextColor3=G,Visible=false
+})
+corner(up)
+corner(down)
+
+local open=add("TextButton","Open",gui,{
+ Size=UDim2.fromOffset(100,32),
+ Position=UDim2.new(0,12,.5,0),
+ BackgroundColor3=B,BorderColor3=G,
+ Text="OPEN GUI",TextColor3=G,
+ Visible=false
+})
+corner(open)
+
+local fly,a,b=false,false,false
+local bv,bg
+
+local function stop()
+ fly,a,b=false,false,false
+ if bv then
+  bv:Destroy()
+  bv=nil
+ end
+ if bg then
+  bg:Destroy()
+  bg=nil
+ end
+ flight.Text="FLIGHT:OFF"
+ up.Visible=false
+ down.Visible=false
+end
+
+local function start()
+ stop()
+ local c=pl.Character
+ local r=c and c:FindFirstChild("HumanoidRootPart")
+ if not r then return end
+ fly=true
+ flight.Text="FLIGHT:ON"
+ up.Visible=true
+ down.Visible=true
+ bv=Instance.new("BodyVelocity")
+ bv.MaxForce=Vector3.new(1e6,1e6,1e6)
+ bv.P=12500
+ bv.Parent=r
+ bg=Instance.new("BodyGyro")
+ bg.MaxTorque=Vector3.new(1e6,1e6,1e6)
+ bg.P=9000
+ bg.CFrame=r.CFrame
+ bg.Parent=r
+end
+
+flight.MouseButton1Click:Connect(function()
+ if fly then
+  stop()
+ else
+  start()
+ end
+end)
+
+up.MouseButton1Down:Connect(function() a=true end)
+up.MouseButton1Up:Connect(function() a=false end)
+down.MouseButton1Down:Connect(function() b=true end)
+down.MouseButton1Up:Connect(function() b=false end)close.MouseButton1Click:Connect(function()
+ f.Visible=false
+ open.Visible=true
+end)
+
+open.MouseButton1Click:Connect(function()
+ f.Visible=true
+ open.Visible=false
+end)
+
+local conn=R.Heartbeat:Connect(function()
+ local c=pl.Character
+
+ if ncOn and c then
+  for _,q in ipairs(c:GetDescendants()) do
+   if q:IsA("BasePart") then
+    if sv[q]==nil then
+     sv[q]=q.CanCollide
+    end
+    q.CanCollide=false
+   end
+  end
+ end
+
+ local r=c and c:FindFirstChild("HumanoidRootPart")
+ local v=r and r.AssemblyLinearVelocity
+ speed.Text=v and string.format(
+  "Speed:%.1f",
+  Vector3.new(v.X,0,v.Z).Magnitude
+ ) or "Speed:0"
+
+ if not fly or not bv or not bg then return end
+ if not r then
+  stop()
+  return
+ end
+
+ local h=c:FindFirstChildOfClass("Humanoid")
+ if not h then
+  stop()
+  return
+ end
+
+ local m=h.MoveDirection
+ bv.Velocity=Vector3.new(
+  m.X*fs,
+  ((a and 1 or 0)-(b and 1 or 0))*45,
+  m.Z*fs
+ )
+
+ local cam=workspace.CurrentCamera
+ if cam then
+  bg.CFrame=CFrame.lookAt(
+   r.Position,
+   r.Position+cam.CFrame.LookVector
+  )
+ end
+end)
+
+pl.CharacterAdded:Connect(function()
+ stop()
+ sn(false)
+end)
+
+gui.Destroying:Connect(function()
+ stop()
+ sn(false)
+ conn:Disconnect()
+end)
