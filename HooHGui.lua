@@ -3,6 +3,12 @@ local UserInputService = game:GetService("UserInputService")
 
 local LocalPlayer = Players.LocalPlayer
 local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+-- HooHGui 2.6: Remove previous GUI
+local oldGui = PlayerGui:FindFirstChild("HooHGui")
+
+if oldGui then
+    oldGui:Destroy()
+end
 
 local GOLD = Color3.fromRGB(196, 154, 66)
 local GOLD_TEXT = Color3.fromRGB(175, 150, 105)
@@ -127,7 +133,7 @@ headerLine.Parent = header
 local title = Instance.new("TextLabel")
 title.Size = UDim2.new(1, 0, 1, 0)
 title.BackgroundTransparency = 1
-title.Text = "HOOHGui v2"
+title.Text = "HOOHGui V2.6"
 title.TextColor3 = GOLD_TEXT
 title.Font = Enum.Font.SourceSansBold
 title.TextSize = 16
