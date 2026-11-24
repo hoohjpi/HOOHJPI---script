@@ -865,8 +865,6 @@ local function updateDetails()
         "\nStatus: " .. status ..
         "\nHealth: " .. math.floor(health) ..
         " / " .. math.floor(maxHealth) ..
-        "\nWalkSpeed Property: " .. speed ..
-        "\n" .. jumpValue ..
         "\nActual Speed: " .. string.format("%.1f", actualSpeed) ..
         " studs/s" ..
         "\nVertical Speed: " .. string.format("%.2f", verticalSpeed) ..
