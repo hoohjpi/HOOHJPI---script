@@ -978,7 +978,7 @@ local function updateAllPlayers()
 
         if rowData then
             local status, health, maxHealth =
-                getPlayerStatus(target)
+    getPlayerStatus(selectedPlayer)
 
             rowData.StatsLabel.Text = string.format(
                 "%s | HP: %d/%d | Actual: %.1f",
