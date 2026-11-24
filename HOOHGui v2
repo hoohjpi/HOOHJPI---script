@@ -247,6 +247,498 @@ local selectedPlayer = nil
 local playerRows = {}
 local accountDateCache = {}
 local movementData = {}
+-- HooHGui 2.5 - Players Save add-on
+-- Insert this block into HooHGui.lua immediately AFTER:
+-- local movementData = {}
+--
+-- This add-on keeps the original first and second pages. It adds a third page
+-- opened from the bottom of the existing Player Details page.
+--
+-- Storage compatibility:
+--   Preferred: executor-provided readfile / writefile (and optional isfile).
+--   Fallback: getgenv() memory table, which is NOT guaranteed to survive a
+--             Roblox restart or a different executor session.
+-- Clipboard:
+--   Preferred: setclipboard / toclipboard / writeclipboard.
+--   Fallback: a selectable TextBox for manual copying.
+
+local HttpService = game:GetService("HttpService")
+
+local SAVE_FILE = "HooHGui_SavedPlayers.json"
+local MAX_SAVED_PLAYERS = 50
+local SAVE_TTL = 365 * 24 * 60 * 60
+
+-- Keep the existing detail text, but reserve a small strip at the bottom
+-- for the new Players Save button.
+detailText.Size = UDim2.new(1, 0, 1, -58)
+local function makeSaveButton(parent, name, text, position, size)
+    local button = Instance.new("TextButton")
+    button.Name = name
+    button.Position = position
+    button.Size = size
+    button.BackgroundColor3 = Color3.fromRGB(8, 8, 8)
+    button.BorderSizePixel = 1
+    button.BorderColor3 = GOLD
+    button.Text = text
+    button.TextColor3 = GOLD_TEXT
+    button.Font = Enum.Font.SourceSans
+    button.TextSize = 11
+    button.AutoButtonColor = true
+    button.Parent = parent
+    return button
+end
+local playersSaveButton = makeSaveButton(
+    detail,
+    "PlayersSaveButton",
+    "Players Save",
+    UDim2.new(0, 0, 1, -25),
+    UDim2.new(1, 0, 0, 22)
+)
+
+-- Third page is a sibling of the existing detail page.
+local savePage = Instance.new("Frame")
+savePage.Name = "PlayersSavePage"
+savePage.Position = detail.Position
+savePage.Size = detail.Size
+savePage.BackgroundTransparency = 1
+savePage.Visible = false
+savePage.Parent = right
+UserInputService.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1
+            or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = false
+        end
+    end)
+end
+
+local smallPanel = Instance.new("Frame")
+smallPanel.Name = "SmallPanel"
+smallPanel.Size = UDim2.new(0, 68, 0, 36)
+smallPanel.Position = UDim2.new(0, 20, 0.5, -18)
+local copySelectedButton = makeSaveButton(
+    savePage,
+    "CopyUsernameButton",
+    "Copy Username",
+    UDim2.new(0, 0, 0, 29),
+    UDim2.new(1, 0, 0, 22)
+)
+
+local collectSelectedButton = makeSaveButton(
+    savePage,
+    "CollectionPlayersButton",
+    "Collection Players",
+    UDim2.new(0, 0, 0, 55),
+    UDim2.new(1, 0, 0, 22)
+)
+
+local savedCountLabel = Instance.new("TextLabel")
+savedCountLabel.Name = "SavedCount"
+savedCountLabel.Position = UDim2.new(0, 0, 0, 81)
+savedCountLabel.Size = UDim2.new(1, 0, 0, 17)
+savedCountLabel.BackgroundTransparency = 1
+savedCountLabel.Text = "Saved Players: 0/50"
+savedCountLabel.TextColor3 = GOLD_TEXT
+savedCountLabel.Font = Enum.Font.SourceSans
+savedCountLabel.TextSize = 11
+savedCountLabel.TextXAlignment = Enum.TextXAlignment.Left
+savedCountLabel.Parent = savePage
+local searchBox = Instance.new("TextBox")
+searchBox.Name = "SearchSavedPlayers"
+searchBox.Position = UDim2.new(0, 0, 0, 100)
+searchBox.Size = UDim2.new(1, 0, 0, 22)
+searchBox.BackgroundColor3 = Color3.fromRGB(8, 8, 8)
+searchBox.BorderSizePixel = 1
+searchBox.BorderColor3 = GOLD
+searchBox.Text = ""
+searchBox.PlaceholderText = "Search Username"
+searchBox.PlaceholderColor3 = Color3.fromRGB(125, 110, 85)
+searchBox.TextColor3 = GOLD_TEXT
+searchBox.Font = Enum.Font.SourceSans
+searchBox.TextSize = 11
+searchBox.ClearTextOnFocus = false
+searchBox.TextXAlignment = Enum.TextXAlignment.Left
+searchBox.Parent = savePage
+
+local saveStatusLabel = Instance.new("TextLabel")
+saveStatusLabel.Name = "SaveStatus"
+saveStatusLabel.Position = UDim2.new(0, 0, 0, 124)
+saveStatusLabel.Size = UDim2.new(1, 0, 0, 16)
+saveStatusLabel.BackgroundTransparency = 1
+saveStatusLabel.Text = ""
+saveStatusLabel.TextColor3 = GOLD
+saveStatusLabel.Font = Enum.Font.SourceSans
+saveStatusLabel.TextSize = 10
+saveStatusLabel.TextXAlignment = Enum.TextXAlignment.Left
+saveStatusLabel.TextTruncate = Enum.TextTruncate.AtEnd
+saveStatusLabel.Parent = savePage
+
+local manualCopyBox = Instance.new("TextBox")
+manualCopyBox.Name = "ManualCopyFallback"
+manualCopyBox.Position = UDim2.new(0, 0, 0, 124)
+manualCopyBox.Size = UDim2.new(1, 0, 0, 18)
+manualCopyBox.BackgroundColor3 = Color3.fromRGB(8, 8, 8)
+manualCopyBox.BorderSizePixel = 1
+manualCopyBox.BorderColor3 = GOLD
+manualCopyBox.Text = ""
+manualCopyBox.TextColor3 = GOLD_TEXT
+manualCopyBox.Font = Enum.Font.SourceSans
+manualCopyBox.TextSize = 10
+manualCopyBox.ClearTextOnFocus = false
+manualCopyBox.Visible = false
+manualCopyBox.Parent = savePage
+
+local savedList = Instance.new("ScrollingFrame")
+savedList.Name = "SavedPlayersList"
+savedList.Position = UDim2.new(0, 0, 0, 144)
+savedList.Size = UDim2.new(1, 0, 1, -144)
+savedList.BackgroundTransparency = 1
+savedList.BorderSizePixel = 0
+savedList.ScrollBarThickness = 4
+savedList.ScrollBarImageColor3 = GOLD
+savedList.CanvasSize = UDim2.new(0, 0, 0, 0)
+savedList.AutomaticCanvasSize = Enum.AutomaticSize.Y
+savedList.Parent = savePage
+local savedListLayout = Instance.new("UIListLayout")
+savedListLayout.Padding = UDim.new(0, 2)
+savedListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+savedListLayout.Parent = savedList
+
+local savedPlayers = {}
+local storageMode = "unavailable"
+
+local sharedEnvironment = _G
+if type(getgenv) == "function" then
+    local ok, environment = pcall(getgenv)
+    if ok and type(environment) == "table" then
+        sharedEnvironment = environment
+    end
+end
+local function setSaveStatus(message)
+    saveStatusLabel.Text = message or ""
+end
+
+local function hasFileStorage()
+    return type(readfile) == "function"
+        and type(writefile) == "function"
+end
+
+local function saveData()
+    local okEncode, encoded = pcall(function()
+        return HttpService:JSONEncode(savedPlayers)
+    end)
+
+    if not okEncode then
+        storageMode = "unavailable"
+        setSaveStatus("Save failed: JSON encode error")
+        return false
+    end
+
+    if hasFileStorage() then
+        local okWrite = pcall(function()
+            writefile(SAVE_FILE, encoded)
+        end)
+
+        if okWrite then
+            storageMode = "file"
+            sharedEnvironment.HooHGuiSavedPlayers = savedPlayers
+            setSaveStatus("Saved locally")
+            return true
+        end
+    end
+
+    -- Session-memory fallback only. This is not cross-session persistence.
+    sharedEnvironment.HooHGuiSavedPlayers = savedPlayers
+    storageMode = "memory"
+    setSaveStatus("File storage unavailable: session-only")
+    return false
+end
+local function loadData()
+    local loaded = nil
+
+    if hasFileStorage() then
+        local fileExists = true
+        if type(isfile) == "function" then
+            local okExists, exists = pcall(isfile, SAVE_FILE)
+            fileExists = okExists and exists == true
+        end
+
+        if fileExists then
+            local okRead, contents = pcall(readfile, SAVE_FILE)
+            if okRead and type(contents) == "string" and contents ~= "" then
+                local okDecode, decoded = pcall(function()
+                    return HttpService:JSONDecode(contents)
+                end)
+                if okDecode and type(decoded) == "table" then
+                    loaded = decoded
+                    storageMode = "file"
+                end
+            end
+        else
+            -- The file does not exist yet; do not report it as loaded.
+            storageMode = "unavailable"
+        end
+    end
+
+    if type(loaded) ~= "table"
+        and type(sharedEnvironment.HooHGuiSavedPlayers) == "table" then
+        loaded = sharedEnvironment.HooHGuiSavedPlayers
+        if storageMode ~= "file" then
+            storageMode = "memory"
+        end
+    end
+
+    if type(loaded) == "table" then
+        local now = os.time()
+        local seenIds = {}
+        local seenNames = {}
+        for _, record in ipairs(loaded) do
+            if type(record) == "table"
+                and type(record.Username) == "string"
+                and type(record.SavedAt) == "number" then
+
+                local age = now - record.SavedAt
+                local usernameKey = string.lower(record.Username)
+                local userId = tonumber(record.UserId)
+                local idKey = userId and tostring(userId) or nil
+
+                local notExpired = age >= 0 and age < SAVE_TTL
+                local notDuplicate = not seenNames[usernameKey]
+                    and (not idKey or not seenIds[idKey])
+
+                if notExpired and notDuplicate
+                    and #savedPlayers < MAX_SAVED_PLAYERS then
+                    table.insert(savedPlayers, {
+                        UserId = userId,
+                        Username = record.Username,
+                        DisplayName = tostring(record.DisplayName or record.Username),
+                        SavedAt = record.SavedAt
+                    })
+                    seenNames[usernameKey] = true
+                    if idKey then
+                        seenIds[idKey] = true
+                    end
+                end
+            end
+        end
+    end
+
+    sharedEnvironment.HooHGuiSavedPlayers = savedPlayers
+    if storageMode == "file" then
+        setSaveStatus("Local save ready")
+    elseif storageMode == "memory" then
+        setSaveStatus("Session-only storage")
+    elseif hasFileStorage() then
+        setSaveStatus("No saved file yet")
+    else
+        setSaveStatus("No compatible file storage detected")
+    end
+end
+local function findSavedPlayer(target)
+    local lowerName = string.lower(target.Name)
+    for index, record in ipairs(savedPlayers) do
+        if (record.UserId and record.UserId == target.UserId)
+            or string.lower(record.Username) == lowerName then
+            return index, record
+        end
+    end
+    return nil, nil
+end
+
+local function copyText(text)
+    local clipboardFunction = nil
+
+    if type(setclipboard) == "function" then
+        clipboardFunction = setclipboard
+    elseif type(toclipboard) == "function" then
+        clipboardFunction = toclipboard
+    elseif type(writeclipboard) == "function" then
+        clipboardFunction = writeclipboard
+    end
+
+    if clipboardFunction then
+        local ok = pcall(clipboardFunction, text)
+        if ok then
+            manualCopyBox.Visible = false
+            saveStatusLabel.Visible = true
+            setSaveStatus("Copied: " .. text)
+            return true
+        end
+    end
+
+    -- Manual-copy fallback for environments without a clipboard function.
+    manualCopyBox.Text = text
+    manualCopyBox.Visible = true
+    saveStatusLabel.Visible = false
+    pcall(function()
+        manualCopyBox:CaptureFocus()
+        manualCopyBox.SelectionStart = 1
+        manualCopyBox.CursorPosition = #text + 1
+    end)
+    return false
+end
+local function clearSavedRows()
+    for _, child in ipairs(savedList:GetChildren()) do
+        if child:IsA("Frame") or child:IsA("TextLabel") then
+            child:Destroy()
+        end
+    end
+end
+
+local function renderSavedPlayers()
+    clearSavedRows()
+    savedCountLabel.Text = string.format(
+        "Saved Players: %d/%d",
+        #savedPlayers,
+        MAX_SAVED_PLAYERS
+    )
+
+    local query = string.lower(searchBox.Text or "")
+    local shown = 0
+
+    for index, record in ipairs(savedPlayers) do
+        if query == "" or string.find(
+            string.lower(record.Username),
+            query,
+            1,
+            true
+        ) then
+            shown = shown + 1
+
+            local row = Instance.new("Frame")
+            row.Name = "SavedPlayer_" .. tostring(index)
+            row.Size = UDim2.new(1, -2, 0, 31)
+            row.BackgroundColor3 = Color3.fromRGB(8, 8, 8)
+            row.BorderSizePixel = 1
+            row.BorderColor3 = Color3.fromRGB(55, 45, 28)
+            row.LayoutOrder = index
+            row.Parent = savedList
+
+            local usernameLabel = Instance.new("TextLabel")
+            usernameLabel.Position = UDim2.new(0, 4, 0, 0)
+            usernameLabel.Size = UDim2.new(1, -99, 1, 0)
+            usernameLabel.BackgroundTransparency = 1
+            usernameLabel.Text = record.Username
+            usernameLabel.TextColor3 = GOLD_TEXT
+            usernameLabel.Font = Enum.Font.SourceSans
+            usernameLabel.TextSize = 10
+            usernameLabel.TextXAlignment = Enum.TextXAlignment.Left
+            usernameLabel.TextTruncate = Enum.TextTruncate.AtEnd
+            usernameLabel.Parent = row
+local copyButton = makeSaveButton(
+                row,
+                "CopySavedPlayer",
+                "Copy",
+                UDim2.new(1, -91, 0, 4),
+                UDim2.new(0, 40, 0, 22)
+            )
+            copyButton.MouseButton1Click:Connect(function()
+                copyText(record.Username)
+            end)
+
+            local deleteButton = makeSaveButton(
+                row,
+                "DeleteSavedPlayer",
+                "Delete",
+                UDim2.new(1, -47, 0, 4),
+                UDim2.new(0, 43, 0, 22)
+            )
+            deleteButton.MouseButton1Click:Connect(function()
+                table.remove(savedPlayers, index)
+                saveData()
+                renderSavedPlayers()
+            end)
+        end
+    end
+
+    if shown == 0 then
+        local emptyLabel = Instance.new("TextLabel")
+        emptyLabel.Name = "NoPlayersFound"
+        emptyLabel.Size = UDim2.new(1, 0, 0, 24)
+        emptyLabel.BackgroundTransparency = 1
+        emptyLabel.Text = "No Players Found"
+        emptyLabel.TextColor3 = GOLD_TEXT
+        emptyLabel.Font = Enum.Font.SourceSans
+        emptyLabel.TextSize = 11
+        emptyLabel.Parent = savedList
+    end
+end
+playersSaveButton.MouseButton1Click:Connect(function()
+    if not selectedPlayer or selectedPlayer.Parent ~= Players then
+        setSaveStatus("Player is no longer in this server")
+        return
+    end
+
+    detail.Visible = false
+    savePage.Visible = true
+    manualCopyBox.Visible = false
+    saveStatusLabel.Visible = true
+    renderSavedPlayers()
+end)
+
+saveBackButton.MouseButton1Click:Connect(function()
+    savePage.Visible = false
+    detail.Visible = true
+    manualCopyBox.Visible = false
+    saveStatusLabel.Visible = true
+end)
+
+copySelectedButton.MouseButton1Click:Connect(function()
+    if not selectedPlayer or selectedPlayer.Parent ~= Players then
+        setSaveStatus("Player is no longer in this server")
+        return
+    end
+    copyText(selectedPlayer.Name)
+end)
+
+collectSelectedButton.MouseButton1Click:Connect(function()
+    if not selectedPlayer or selectedPlayer.Parent ~= Players then
+        setSaveStatus("Player is no longer in this server")
+        return
+    end
+
+    local existingIndex = findSavedPlayer(selectedPlayer)
+    if existingIndex then
+        setSaveStatus("Already Saved")
+        return
+    end
+
+    if #savedPlayers >= MAX_SAVED_PLAYERS then
+        setSaveStatus("Saved Players Limit Reached (50/50)")
+        return
+    end
+
+    table.insert(savedPlayers, {
+        UserId = selectedPlayer.UserId,
+        Username = selectedPlayer.Name,
+        DisplayName = selectedPlayer.DisplayName,
+        SavedAt = os.time()
+    })
+
+    saveData()
+    renderSavedPlayers()
+    if storageMode == "file" then
+        setSaveStatus("Player added and saved")
+    elseif storageMode == "memory" then
+        setSaveStatus("Added; session-only storage")
+    else
+        setSaveStatus("Added in memory; permanent save unavailable")
+    end
+end)
+
+searchBox:GetPropertyChangedSignal("Text"):Connect(function()
+    renderSavedPlayers()
+end)
+
+-- If the player being viewed leaves while the third page is open,
+-- return to the server list through the original removal flow.
+Players.PlayerRemoving:Connect(function(target)
+    if selectedPlayer == target then
+        savePage.Visible = false
+    end
+end)
+
+loadData()
+renderSavedPlayers()
 local function getEstimatedDate(target)
     if accountDateCache[target] then
         return accountDateCache[target]
