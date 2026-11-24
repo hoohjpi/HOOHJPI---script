@@ -761,17 +761,13 @@ local function getPlayerStatus(target)
         and character:FindFirstChildOfClass("Humanoid")
 
     if not humanoid then
-        return "Waiting", 0, 0, 0, "Unavailable"
+        return "Waiting", 0, 0
     end
 
     local status = humanoid.Health > 0 and "Alive" or "Dead"
-    local jumpValue
 
-    if humanoid.UseJumpPower then
-        jumpValue = "JumpPower: " .. humanoid.JumpPower
-    else
-        jumpValue = "JumpHeight: " .. humanoid.JumpHeight
-    end
+    return status, humanoid.Health, humanoid.MaxHealth
+end
 
     return status, humanoid.Health, humanoid.MaxHealth,
         humanoid.WalkSpeed, jumpValue
