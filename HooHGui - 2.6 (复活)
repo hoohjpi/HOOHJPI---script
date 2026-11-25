@@ -266,6 +266,25 @@ local playersSaveButton = makeSaveButton(
 )
 -- Third page is a sibling of the existing detail page.
 local savePage = Instance.new("Frame")
+-- Player Details Vertical Scrolling
+local detailScroll = Instance.new("ScrollingFrame")
+detailScroll.Name = "PlayerDetailsScroll"
+detailScroll.Position = UDim2.new(0, 0, 0, 28)
+detailScroll.Size = UDim2.new(1, 0, 1, -58)
+detailScroll.BackgroundTransparency = 1
+detailScroll.BorderSizePixel = 0
+detailScroll.ScrollBarThickness = 4
+detailScroll.ScrollBarImageColor3 = GOLD
+detailScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
+detailScroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
+detailScroll.ScrollingDirection = Enum.ScrollingDirection.Y
+detailScroll.Active = true
+detailScroll.Parent = detail
+
+detailText.Parent = detailScroll
+detailText.Position = UDim2.new(0, 0, 0, 0)
+detailText.Size = UDim2.new(1, -8, 0, 0)
+detailText.AutomaticSize = Enum.AutomaticSize.Y
 savePage.Name = "PlayersSavePage"
 savePage.Position = detail.Position
 savePage.Size = detail.Size
