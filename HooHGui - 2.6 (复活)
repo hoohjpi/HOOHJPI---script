@@ -817,6 +817,12 @@ local function updateMovement(target)
     data.LastTime = now
     local movementStatus = actualSpeed > SPEED_LIMIT
         and "Suspicious" or "Normal"
+-- Extra Speed Warning
+if actualSpeed >= 300 then
+    movementStatus = "Super suspicious (possibly hacker)"
+elseif actualSpeed >= 250 then
+    movementStatus = "Worth checking hacker"
+end
 
     return actualSpeed, verticalSpeed, heightOffset, movementStatus
 end
