@@ -854,6 +854,7 @@ local function showDetails(target)
     selectedPlayer = target
     playerList.Visible = false
     detail.Visible = true
+    accountDateLabel.Text = "Account Date: " .. getEstimatedDate(target)
     updateDetails()
 end
 
