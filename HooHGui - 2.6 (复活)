@@ -295,8 +295,8 @@ activityTitle.Size = UDim2.new(1, 0, 1, 0)
 activityTitle.BackgroundTransparency = 1
 activityTitle.Text = "Activity Log"
 activityTitle.TextColor3 = GOLD_TEXT
-activityTitle.Font = Enum.Font.SourceSansBold
-activityTitle.TextSize = 13
+activityTitle.Font = Enum.Font.SourceSans
+activityTitle.TextSize = 12
 activityTitle.Parent = activityHeader
 
 local headerLine = Instance.new("Frame")
