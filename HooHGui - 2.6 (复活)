@@ -233,6 +233,143 @@ local selectedPlayer = nil
 local playerRows = {}
 local accountDateCache = {}
 local movementData = {}
+-- Activity Log
+local activityLogEntries = {}
+local MAX_ACTIVITY_LOG = 100
+
+local activityToggle = Instance.new("TextButton")
+activityToggle.Name = "ActivityLogToggle"
+activityToggle.Size = UDim2.new(0, 116, 0, 32)
+activityToggle.Position = UDim2.new(0, 20, 0, 20)
+activityToggle.BackgroundColor3 = Color3.fromRGB(5, 5, 5)
+activityToggle.BorderSizePixel = 1
+activityToggle.BorderColor3 = Color3.fromRGB(0, 0, 0)
+activityToggle.Text = "Activity Log"
+activityToggle.TextColor3 = GOLD_TEXT
+activityToggle.Font = Enum.Font.SourceSans
+activityToggle.TextSize = 12
+activityToggle.Parent = gui
+
+local toggleStroke = Instance.new("UIStroke")
+toggleStroke.Color = GOLD
+toggleStroke.Thickness = 1
+toggleStroke.Parent = activityToggle
+
+-- Activity Log Panel
+local activityPanel = Instance.new("Frame")
+activityPanel.Name = "ActivityLogPanel"
+activityPanel.Size = UDim2.new(0, 340, 0, 190)
+activityPanel.Position = UDim2.new(0, 20, 0, 58)
+activityPanel.BackgroundColor3 = Color3.fromRGB(5, 5, 5)
+activityPanel.BorderSizePixel = 1
+activityPanel.BorderColor3 = Color3.fromRGB(0, 0, 0)
+activityPanel.Visible = false
+activityPanel.Parent = gui
+
+local panelStroke = Instance.new("UIStroke")
+panelStroke.Color = GOLD
+panelStroke.Thickness = 1
+panelStroke.Parent = activityPanel
+
+local activityInner = Instance.new("Frame")
+activityInner.Position = UDim2.new(0, 3, 0, 3)
+activityInner.Size = UDim2.new(1, -6, 1, -6)
+activityInner.BackgroundColor3 = Color3.fromRGB(8, 8, 8)
+activityInner.BorderSizePixel = 1
+activityInner.BorderColor3 = Color3.fromRGB(0, 0, 0)
+activityInner.Parent = activityPanel
+
+local innerStroke = Instance.new("UIStroke")
+innerStroke.Color = GOLD
+innerStroke.Thickness = 1
+innerStroke.Parent = activityInner
+
+local activityHeader = Instance.new("Frame")
+activityHeader.Size = UDim2.new(1, 0, 0, 30)
+activityHeader.BackgroundColor3 = Color3.fromRGB(8, 8, 8)
+activityHeader.BorderSizePixel = 0
+activityHeader.Parent = activityInner
+
+local activityTitle = Instance.new("TextLabel")
+activityTitle.Size = UDim2.new(1, 0, 1, 0)
+activityTitle.BackgroundTransparency = 1
+activityTitle.Text = "Activity Log"
+activityTitle.TextColor3 = GOLD_TEXT
+activityTitle.Font = Enum.Font.SourceSansBold
+activityTitle.TextSize = 13
+activityTitle.Parent = activityHeader
+
+local headerLine = Instance.new("Frame")
+headerLine.Size = UDim2.new(1, 0, 0, 1)
+headerLine.Position = UDim2.new(0, 0, 1, -1)
+headerLine.BackgroundColor3 = GOLD
+headerLine.BorderSizePixel = 0
+headerLine.Parent = activityHeader
+
+local activityList = Instance.new("ScrollingFrame")
+activityList.Name = "ActivityEntries"
+activityList.Position = UDim2.new(0, 5, 0, 35)
+activityList.Size = UDim2.new(1, -10, 1, -40)
+activityList.BackgroundTransparency = 1
+activityList.BorderSizePixel = 0
+activityList.ScrollBarThickness = 4
+activityList.ScrollBarImageColor3 = GOLD
+activityList.AutomaticCanvasSize = Enum.AutomaticSize.Y
+activityList.ScrollingDirection = Enum.ScrollingDirection.Y
+activityList.Parent = activityInner
+
+local activityLayout = Instance.new("UIListLayout")
+activityLayout.Padding = UDim.new(0, 2)
+activityLayout.SortOrder = Enum.SortOrder.LayoutOrder
+activityLayout.Parent = activityList
+
+-- Add Activity
+local function addActivity(message)
+    local entry = Instance.new("TextLabel")
+    entry.Name = "ActivityEntry"
+    entry.Size = UDim2.new(1, -4, 0, 0)
+    entry.AutomaticSize = Enum.AutomaticSize.Y
+    entry.BackgroundColor3 = Color3.fromRGB(8, 8, 8)
+    entry.BorderSizePixel = 1
+    entry.BorderColor3 = GOLD
+    entry.Text = "[" .. os.date("%H:%M:%S") .. "] "
+        .. tostring(message)
+    entry.TextColor3 = GOLD_TEXT
+    entry.Font = Enum.Font.SourceSans
+    entry.TextSize = 11
+    entry.TextWrapped = true
+    entry.TextXAlignment = Enum.TextXAlignment.Left
+    entry.TextYAlignment = Enum.TextYAlignment.Top
+    entry.Parent = activityList
+
+    table.insert(activityLogEntries, entry)
+
+    while #activityLogEntries > MAX_ACTIVITY_LOG do
+        local oldest = table.remove(activityLogEntries, 1)
+        if oldest then
+            oldest:Destroy()
+        end
+    end
+
+    task.defer(function()
+        if activityList.Parent then
+            activityList.CanvasPosition = Vector2.new(
+                0,
+                math.max(
+                    0,
+                    activityList.AbsoluteCanvasSize.Y
+                    - activityList.AbsoluteSize.Y
+                )
+            )
+        end
+    end)
+end
+
+-- Open / Close
+activityToggle.MouseButton1Click:Connect(function()
+    activityPanel.Visible = not activityPanel.Visible
+end)
+addActivity("Activity Log Test")
 -- HooHGui 2.5 - Players Save add-on
 -- Insert this block into HooHGui.lua immediately AFTER:
 -- local movementData = {}
@@ -965,9 +1102,14 @@ local function updateAllPlayers()
         updateDetails()
     end
 end
-Players.PlayerAdded:Connect(addPlayer)
-Players.PlayerRemoving:Connect(removePlayer)
-
+Players.PlayerAdded:Connect(function(target)
+    addActivity("Player joined: " .. target.Name)
+    addPlayer(target)
+end)
+Players.PlayerRemoving:Connect(function(target)
+    addActivity("Player left: " .. target.Name)
+    removePlayer(target)
+end)
 for _, target in ipairs(Players:GetPlayers()) do
     addPlayer(target)
 end
