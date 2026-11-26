@@ -362,7 +362,8 @@ task.defer(function()
             math.max(0, contentHeight - visibleHeight)
         )
     end
-end)
+  end)
+end
 
 -- Open / Close
 activityToggle.MouseButton1Click:Connect(function()
