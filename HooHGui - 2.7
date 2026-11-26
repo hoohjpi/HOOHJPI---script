@@ -281,16 +281,11 @@ panelStroke.Color = GOLD
 panelStroke.Thickness = 1
 panelStroke.Parent = activityPanel
 
-local innerStroke = Instance.new("UIStroke")
-innerStroke.Color = GOLD
-innerStroke.Thickness = 1
-innerStroke.Parent = activityInner
-
 local activityHeader = Instance.new("Frame")
 activityHeader.Size = UDim2.new(1, 0, 0, 30)
 activityHeader.BackgroundColor3 = Color3.fromRGB(8, 8, 8)
 activityHeader.BorderSizePixel = 0
-activityHeader.Parent = activityInner
+activityHeader.Parent = activityPanel
 
 local activityTitle = Instance.new("TextLabel")
 activityTitle.Size = UDim2.new(1, 0, 1, 0)
@@ -318,7 +313,7 @@ activityList.ScrollBarThickness = 4
 activityList.ScrollBarImageColor3 = GOLD
 activityList.AutomaticCanvasSize = Enum.AutomaticSize.Y
 activityList.ScrollingDirection = Enum.ScrollingDirection.Y
-activityList.Parent = activityInner
+activityList.Parent = activityPanel
 
 local activityLayout = Instance.new("UIListLayout")
 activityLayout.Padding = UDim.new(0, 2)
