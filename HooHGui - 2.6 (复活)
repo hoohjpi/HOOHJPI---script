@@ -243,7 +243,7 @@ activityToggle.Size = UDim2.new(0, 116, 0, 32)
 activityToggle.Position = UDim2.new(0, 20, 0, 20)
 activityToggle.BackgroundColor3 = Color3.fromRGB(5, 5, 5)
 activityToggle.BorderSizePixel = 1
-activityToggle.BorderColor3 = Color3.fromRGB(0, 0, 0)
+activityToggle.BorderColor3 = GOLD
 activityToggle.Text = "Activity Log"
 activityToggle.TextColor3 = GOLD_TEXT
 activityToggle.Font = Enum.Font.SourceSans
@@ -262,7 +262,7 @@ activityPanel.Size = UDim2.new(0, 340, 0, 190)
 activityPanel.Position = UDim2.new(0, 20, 0, 58)
 activityPanel.BackgroundColor3 = Color3.fromRGB(5, 5, 5)
 activityPanel.BorderSizePixel = 1
-activityPanel.BorderColor3 = Color3.fromRGB(0, 0, 0)
+activityPanel.BorderColor3 = GOLD
 activityPanel.Visible = false
 activityPanel.Parent = gui
 
@@ -276,7 +276,7 @@ activityInner.Position = UDim2.new(0, 3, 0, 3)
 activityInner.Size = UDim2.new(1, -6, 1, -6)
 activityInner.BackgroundColor3 = Color3.fromRGB(8, 8, 8)
 activityInner.BorderSizePixel = 1
-activityInner.BorderColor3 = Color3.fromRGB(0, 0, 0)
+activityInner.BorderColor3 = GOLD
 activityInner.Parent = activityPanel
 
 local innerStroke = Instance.new("UIStroke")
