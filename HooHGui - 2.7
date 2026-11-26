@@ -265,30 +265,21 @@ activityOuter.BorderSizePixel = 1
 activityOuter.BorderColor3 = Color3.fromRGB(0, 0, 0)
 activityOuter.Visible = false
 activityOuter.Parent = gui
-
 -- Activity Log Panel
 local activityPanel = Instance.new("Frame")
 activityPanel.Name = "ActivityLogPanel"
-activityPanel.Size = UDim2.new(1, -4, 1, -4)
-activityPanel.Position = UDim2.new(0,2,0,2)
+activityPanel.Size = UDim2.new(1, -6, 1, -6)
+activityPanel.Position = UDim2.new(0, 3, 0, 3)
 activityPanel.BackgroundColor3 = Color3.fromRGB(5, 5, 5)
 activityPanel.BorderSizePixel = 1
-activityPanel.BorderColor3 = GOLD
+activityPanel.BorderColor3 = Color3.fromRGB(0, 0, 0)
 activityPanel.Visible = true
 activityPanel.Parent = activityOuter
 
 local panelStroke = Instance.new("UIStroke")
 panelStroke.Color = GOLD
-panelStroke.Thickness = 2
+panelStroke.Thickness = 1
 panelStroke.Parent = activityPanel
-
-local activityInner = Instance.new("Frame")
-activityInner.Position = UDim2.new(0, 3, 0, 3)
-activityInner.Size = UDim2.new(1, -6, 1, -6)
-activityInner.BackgroundColor3 = Color3.fromRGB(8, 8, 8)
-activityInner.BorderSizePixel = 1
-activityInner.BorderColor3 = GOLD
-activityInner.Parent = activityPanel
 
 local innerStroke = Instance.new("UIStroke")
 innerStroke.Color = GOLD
