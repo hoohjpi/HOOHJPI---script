@@ -122,7 +122,7 @@ headerLine.Parent = header
 local title = Instance.new("TextLabel")
 title.Size = UDim2.new(1, 0, 1, 0)
 title.BackgroundTransparency = 1
-title.Text = "HOOHGui V2.6"
+title.Text = "HOOHGui V2.7"
 title.TextColor3 = GOLD_TEXT
 title.Font = Enum.Font.SourceSansBold
 title.TextSize = 16
@@ -255,20 +255,31 @@ toggleStroke.Color = GOLD
 toggleStroke.Thickness = 1
 toggleStroke.Parent = activityToggle
 
+-- Black Outer Border
+local activityOuter = Instance.new("Frame")
+activityOuter.Name = "ActivityLogOuter"
+activityOuter.Size = UDim2.new(0, 344, 0, 194)
+activityOuter.Position = UDim2.new(0, 20, 0, 58)
+activityOuter.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+activityOuter.BorderSizePixel = 1
+activityOuter.BorderColor3 = Color3.fromRGB(0, 0, 0)
+activityOuter.Visible = false
+activityOuter.Parent = gui
+
 -- Activity Log Panel
 local activityPanel = Instance.new("Frame")
 activityPanel.Name = "ActivityLogPanel"
-activityPanel.Size = UDim2.new(0, 340, 0, 190)
-activityPanel.Position = UDim2.new(0, 20, 0, 58)
+activityPanel.Size = UDim2.new(1, -2, 1, -2)
+activityPanel.Position = UDim2.new(0,1,0,1)
 activityPanel.BackgroundColor3 = Color3.fromRGB(5, 5, 5)
 activityPanel.BorderSizePixel = 1
 activityPanel.BorderColor3 = GOLD
 activityPanel.Visible = false
-activityPanel.Parent = gui
+activityPanel.Parent = activityOuter
 
 local panelStroke = Instance.new("UIStroke")
 panelStroke.Color = GOLD
-panelStroke.Thickness = 1
+panelStroke.Thickness = 2
 panelStroke.Parent = activityPanel
 
 local activityInner = Instance.new("Frame")
@@ -367,7 +378,7 @@ end
 
 -- Open / Close
 activityToggle.MouseButton1Click:Connect(function()
-    activityPanel.Visible = not activityPanel.Visible
+    activityOuter.Visible = not activityOuter.Visible
 end)
 addActivity("Activity Log Test")
 -- HooHGui 2.5 - Players Save add-on
