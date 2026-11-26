@@ -351,19 +351,18 @@ local function addActivity(message)
         end
     end
 
-    task.defer(function()
-        if activityList.Parent then
-            activityList.CanvasPosition = Vector2.new(
-                0,
-                math.max(
-                    0,
-                    activityList.AbsoluteCanvasSize.Y
-                    - activityList.AbsoluteSize.Y
-                )
-            )
-        end
-    end)
-end
+    -- Auto Scroll to Bottom
+task.defer(function()
+    if activityList.Parent then
+        local contentHeight = activityList.AbsoluteCanvasSize.Y
+        local visibleHeight = activityList.AbsoluteSize.Y
+
+        activityList.CanvasPosition = Vector2.new(
+            0,
+            math.max(0, contentHeight - visibleHeight)
+        )
+    end
+end)
 
 -- Open / Close
 activityToggle.MouseButton1Click:Connect(function()
