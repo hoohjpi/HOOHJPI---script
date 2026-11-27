@@ -269,6 +269,45 @@ activityBottomLine.Size = UDim2.new(1, 0, 0, 1)
 activityBottomLine.BackgroundColor3 = GOLD
 activityBottomLine.BorderSizePixel = 0
 activityBottomLine.Parent = activityLogPanel
+-- Activity Log Player Events
+local Players = game:GetService("Players")
+
+local function addActivity(text)
+    activityEmptyLabel.Visible = false
+
+    local logLabel = Instance.new("TextLabel")
+    logLabel.Name = "ActivityEntry"
+    logLabel.Size = UDim2.new(1, -8, 0, 22)
+    logLabel.BackgroundTransparency = 1
+    logLabel.TextColor3 = GOLD_TEXT
+    logLabel.Font = Enum.Font.SourceSans
+    logLabel.TextSize = 11
+    logLabel.TextXAlignment = Enum.TextXAlignment.Left
+    logLabel.Text = text
+    logLabel.LayoutOrder = #activityLogScroll:GetChildren() + 1
+    logLabel.Parent = activityLogScroll
+end
+
+-- Existing Players
+for _, player in ipairs(Players:GetPlayers()) do
+    if player ~= Players.LocalPlayer then
+        addActivity("PLAYER JOINED: " .. player.Name)
+    end
+end
+
+-- New Players
+Players.PlayerAdded:Connect(function(player)
+    if player ~= Players.LocalPlayer then
+        addActivity("PLAYER JOINED: " .. player.Name)
+    end
+end)
+
+-- Leaving Players
+Players.PlayerRemoving:Connect(function(player)
+    if player ~= Players.LocalPlayer then
+        addActivity("PLAYER LEFT: " .. player.Name)
+    end
+end)
 local right = Instance.new("Frame")
 right.Name = "PlayerInfo"
 right.Position = UDim2.new(0.5, 1, 0, 0)
