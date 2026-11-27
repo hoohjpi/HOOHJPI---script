@@ -269,9 +269,21 @@ activityBottomLine.Size = UDim2.new(1, 0, 0, 1)
 activityBottomLine.BackgroundColor3 = GOLD
 activityBottomLine.BorderSizePixel = 0
 activityBottomLine.Parent = activityLogPanel
-if activityLogPanel and activityLogScroll and miscScroll then
-    print("[HOOHGui] test code success")
-end
+-- HOOHGui Test Code
+local testGui = Instance.new("ScreenGui")
+testGui.Name = "HOOHGuiTest"
+testGui.ResetOnSpawn = false
+
+local testLabel = Instance.new("TextLabel")
+testLabel.Size = UDim2.new(0, 240, 0, 45)
+testLabel.Position = UDim2.new(0.5, -120, 0.2, 0)
+testLabel.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+testLabel.TextColor3 = Color3.fromRGB(255, 215, 0)
+testLabel.Text = "test code success"
+testLabel.TextSize = 16
+testLabel.Parent = testGui
+
+testGui.Parent = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
 local right = Instance.new("Frame")
 right.Name = "PlayerInfo"
 right.Position = UDim2.new(0.5, 1, 0, 0)
