@@ -1067,3 +1067,8 @@ smallText.MouseButton1Click:Connect(function()
 end)
 
 makeDraggable(bigPanel, header)
+game:GetService("StarterGui"):SetCore("SendNotification", {
+    Title = "HOOHGui",
+    Text = "test code success",
+    Duration = 5
+})
