@@ -870,6 +870,41 @@ local function getEstimatedDate(target)
     accountDateCache[target] = dateText
     return dateText
 end
+-- Accurate Account Creation Date
+local oldGetEstimatedDate = getEstimatedDate
+
+getEstimatedDate = function(target)
+    if accountDateCache[target] then
+        return accountDateCache[target]
+    end
+
+    local success, dateText = pcall(function()
+        local HttpService = game:GetService("HttpService")
+
+        local response = game:HttpGet(
+            "https://users.roblox.com/v1/users/" .. tostring(target.UserId)
+        )
+
+        local data = HttpService:JSONDecode(response)
+
+        local createdDate = DateTime.fromIsoDate(data.created)
+        local dateInfo = createdDate:ToUniversalTime()
+
+        return string.format(
+            "%d/%d/%d",
+            dateInfo.month,
+            dateInfo.day,
+            dateInfo.year
+        )
+    end)
+
+    if success and dateText then
+        accountDateCache[target] = dateText
+        return dateText
+    end
+
+    return oldGetEstimatedDate(target)
+end
 local function getPlayerStatus(target)
     local character = target.Character
     local humanoid = character
