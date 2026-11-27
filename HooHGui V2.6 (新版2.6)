@@ -269,6 +269,9 @@ activityBottomLine.Size = UDim2.new(1, 0, 0, 1)
 activityBottomLine.BackgroundColor3 = GOLD
 activityBottomLine.BorderSizePixel = 0
 activityBottomLine.Parent = activityLogPanel
+if activityLogPanel and activityLogScroll and miscScroll then
+    print("[HOOHGui] test code success")
+end
 local right = Instance.new("Frame")
 right.Name = "PlayerInfo"
 right.Position = UDim2.new(0.5, 1, 0, 0)
@@ -344,7 +347,7 @@ local selectedPlayer = nil
 local playerRows = {}
 local accountDateCache = {}
 local movementData = {}
--- HooHGui 2.5 - Players Save add-on
+-- HooHGui 2.6 - Players Save add-on
 -- Insert this block into HooHGui.lua immediately AFTER:
 -- local movementData = {}
 --
@@ -1067,8 +1070,3 @@ smallText.MouseButton1Click:Connect(function()
 end)
 
 makeDraggable(bigPanel, header)
-game:GetService("StarterGui"):SetCore("SendNotification", {
-    Title = "HOOHGui",
-    Text = "test code success",
-    Duration = 5
-})
