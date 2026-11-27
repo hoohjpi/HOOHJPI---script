@@ -163,6 +163,112 @@ leftTitle.TextColor3 = GOLD_TEXT
 leftTitle.Font = Enum.Font.SourceSans
 leftTitle.TextSize = 14
 leftTitle.Parent = left
+-- Misc Functions Manual Scroll
+local miscScroll = Instance.new("ScrollingFrame")
+miscScroll.Name = "MiscFunctionsScroll"
+miscScroll.Position = UDim2.new(0, 0, 0, 33)
+miscScroll.Size = UDim2.new(1, 0, 1, -33)
+miscScroll.BackgroundTransparency = 1
+miscScroll.BorderSizePixel = 0
+miscScroll.ScrollBarThickness = 0
+miscScroll.ScrollBarImageColor3 = GOLD
+miscScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
+miscScroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
+miscScroll.ScrollingDirection = Enum.ScrollingDirection.Y
+miscScroll.ScrollingEnabled = true
+miscScroll.Active = true
+miscScroll.Parent = left
+
+local miscLayout = Instance.new("UIListLayout")
+miscLayout.Name = "MiscFunctionsLayout"
+miscLayout.Padding = UDim.new(0, 6)
+miscLayout.SortOrder = Enum.SortOrder.LayoutOrder
+miscLayout.Parent = miscScroll
+
+-- Activity Log Panel
+local activityLogPanel = Instance.new("Frame")
+activityLogPanel.Name = "ActivityLogPanel"
+activityLogPanel.Size = UDim2.new(1, -10, 0, 145)
+activityLogPanel.BackgroundTransparency = 1
+activityLogPanel.BorderSizePixel = 0
+activityLogPanel.LayoutOrder = 1
+activityLogPanel.Parent = miscScroll
+
+-- Top Line
+local activityTopLine = Instance.new("Frame")
+activityTopLine.Name = "ActivityTopLine"
+activityTopLine.Size = UDim2.new(1, 0, 0, 1)
+activityTopLine.BackgroundColor3 = GOLD
+activityTopLine.BorderSizePixel = 0
+activityTopLine.Parent = activityLogPanel
+
+-- Title
+local activityTitle = Instance.new("TextLabel")
+activityTitle.Name = "ActivityTitle"
+activityTitle.Position = UDim2.new(0, 0, 0, 4)
+activityTitle.Size = UDim2.new(1, 0, 0, 22)
+activityTitle.BackgroundTransparency = 1
+activityTitle.Text = "ACTIVITY LOG"
+activityTitle.TextColor3 = GOLD_TEXT
+activityTitle.Font = Enum.Font.SourceSansBold
+activityTitle.TextSize = 13
+activityTitle.TextXAlignment = Enum.TextXAlignment.Center
+activityTitle.Parent = activityLogPanel
+
+-- Header Bottom Line
+local activityHeaderLine = Instance.new("Frame")
+activityHeaderLine.Name = "ActivityHeaderLine"
+activityHeaderLine.Position = UDim2.new(0, 0, 0, 29)
+activityHeaderLine.Size = UDim2.new(1, 0, 0, 1)
+activityHeaderLine.BackgroundColor3 = GOLD
+activityHeaderLine.BorderSizePixel = 0
+activityHeaderLine.Parent = activityLogPanel
+
+-- Activity Log Manual Scroll
+local activityLogScroll = Instance.new("ScrollingFrame")
+activityLogScroll.Name = "ActivityLogScroll"
+activityLogScroll.Position = UDim2.new(0, 0, 0, 35)
+activityLogScroll.Size = UDim2.new(1, 0, 0, 86)
+activityLogScroll.BackgroundTransparency = 1
+activityLogScroll.BorderSizePixel = 0
+activityLogScroll.ScrollBarThickness = 0
+activityLogScroll.ScrollBarImageColor3 = GOLD
+activityLogScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
+activityLogScroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
+activityLogScroll.ScrollingDirection = Enum.ScrollingDirection.Y
+activityLogScroll.ScrollingEnabled = true
+activityLogScroll.Active = true
+activityLogScroll.Parent = activityLogPanel
+
+local activityLogLayout = Instance.new("UIListLayout")
+activityLogLayout.Name = "ActivityLogLayout"
+activityLogLayout.Padding = UDim.new(0, 2)
+activityLogLayout.SortOrder = Enum.SortOrder.LayoutOrder
+activityLogLayout.Parent = activityLogScroll
+
+-- Empty State
+local activityEmptyLabel = Instance.new("TextLabel")
+activityEmptyLabel.Name = "ActivityEmptyLabel"
+activityEmptyLabel.Size = UDim2.new(1, -8, 0, 82)
+activityEmptyLabel.BackgroundTransparency = 1
+activityEmptyLabel.Text = "No activity yet"
+activityEmptyLabel.TextColor3 = GOLD_TEXT
+activityEmptyLabel.TextTransparency = 0.3
+activityEmptyLabel.Font = Enum.Font.SourceSans
+activityEmptyLabel.TextSize = 11
+activityEmptyLabel.TextXAlignment = Enum.TextXAlignment.Center
+activityEmptyLabel.TextYAlignment = Enum.TextYAlignment.Center
+activityEmptyLabel.LayoutOrder = 1
+activityEmptyLabel.Parent = activityLogScroll
+
+-- Bottom Line
+local activityBottomLine = Instance.new("Frame")
+activityBottomLine.Name = "ActivityBottomLine"
+activityBottomLine.Position = UDim2.new(0, 0, 0, 128)
+activityBottomLine.Size = UDim2.new(1, 0, 0, 1)
+activityBottomLine.BackgroundColor3 = GOLD
+activityBottomLine.BorderSizePixel = 0
+activityBottomLine.Parent = activityLogPanel
 local right = Instance.new("Frame")
 right.Name = "PlayerInfo"
 right.Position = UDim2.new(0.5, 1, 0, 0)
