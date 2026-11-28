@@ -508,10 +508,61 @@ local function startFly()
     flyGyro.Parent = root
 
     flyConnection = RunService.RenderStepped:Connect(function()
-        if not flyEnabled or not root.Parent then
-            stopFly()
-            return
+    if not flyEnabled or not root.Parent then
+        stopFly()
+        return
+    end
+
+    local camera = workspace.CurrentCamera
+    if not camera then return end
+
+    -- Manual joystick movement
+    local move = flyHumanoid.MoveDirection
+
+    local look = camera.CFrame.LookVector
+    local right = camera.CFrame.RightVector
+
+    local flatLook = Vector3.new(look.X, 0, look.Z)
+    local flatRight = Vector3.new(right.X, 0, right.Z)
+
+    if flatLook.Magnitude > 0 then
+        flatLook = flatLook.Unit
+    end
+
+    if flatRight.Magnitude > 0 then
+        flatRight = flatRight.Unit
+    end
+
+    local forwardInput = move:Dot(flatLook)
+    local rightInput = move:Dot(flatRight)
+
+    local direction =
+        look * forwardInput +
+        flatRight * rightInput
+
+    if direction.Magnitude > 0.05 then
+        flyVelocity.Velocity = direction.Unit * flySpeed
+    else
+        flyVelocity.Velocity = Vector3.zero
+    end
+
+    -- Rotate character with camera
+    flyGyro.CFrame =
+        CFrame.new(root.Position) * camera.CFrame.Rotation
+
+    -- Keep both arms naturally lowered
+    if torso then
+        for _, jointName in ipairs({
+            "Right Shoulder",
+            "Left Shoulder"
+        }) do
+            local joint = torso:FindFirstChild(jointName)
+            if joint and joint:IsA("Motor6D") then
+                joint.Transform = CFrame.identity
+            end
         end
+    end
+end)
 
         local camera = workspace.CurrentCamera
         if not camera then return end
