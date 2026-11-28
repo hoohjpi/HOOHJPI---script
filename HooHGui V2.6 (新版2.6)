@@ -1061,9 +1061,9 @@ profileUserId.Parent = profilePopup
 -- Avatar Background
 local avatarFrame = Instance.new("Frame")
 avatarFrame.Name = "AvatarFrame"
-avatarFrame.Position = UDim2.new(0.5, 0, 0, 116)
+avatarFrame.Position = UDim2.new(0.5, 0, 0, 112)
 avatarFrame.AnchorPoint = Vector2.new(0.5, 0)
-avatarFrame.Size = UDim2.new(0, 125, 0, 125)
+avatarFrame.Size = UDim2.new(0, 100, 0, 100)
 avatarFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
 avatarFrame.BorderColor3 = GOLD
 avatarFrame.BorderSizePixel = 1
