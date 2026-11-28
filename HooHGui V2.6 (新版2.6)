@@ -308,7 +308,269 @@ Players.PlayerRemoving:Connect(function(player)
         addActivity("PLAYER LEFT: " .. player.Name)
     end
 end)
+-- Fly Settings UI
+local flyFrame = Instance.new("Frame")
+flyFrame.Name = "FlyFrame"
+flyFrame.Parent = miscScroll
+flyFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+flyFrame.BorderColor3 = GOLD
+flyFrame.BorderSizePixel = 1
+flyFrame.Size = UDim2.new(1, -8, 0, 82)
+flyFrame.LayoutOrder = 2
 
+local flyTitle = Instance.new("TextLabel")
+flyTitle.Name = "FlyTitle"
+flyTitle.Parent = flyFrame
+flyTitle.BackgroundTransparency = 1
+flyTitle.Position = UDim2.new(0, 8, 0, 5)
+flyTitle.Size = UDim2.new(1, -16, 0, 18)
+flyTitle.Font = Enum.Font.SourceSans
+flyTitle.Text = "Fly"
+flyTitle.TextColor3 = GOLD_TEXT
+flyTitle.TextSize = 14
+flyTitle.TextXAlignment = Enum.TextXAlignment.Left
+
+local flyToggle = Instance.new("TextButton")
+flyToggle.Name = "FlyToggle"
+flyToggle.Parent = flyFrame
+flyToggle.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+flyToggle.BorderColor3 = GOLD
+flyToggle.BorderSizePixel = 1
+flyToggle.Position = UDim2.new(0, 8, 0, 28)
+flyToggle.Size = UDim2.new(0, 70, 0, 22)
+flyToggle.Font = Enum.Font.SourceSans
+flyToggle.Text = "OFF"
+flyToggle.TextColor3 = GOLD_TEXT
+flyToggle.TextSize = 12
+
+local speedLabel = Instance.new("TextLabel")
+speedLabel.Name = "FlySpeedLabel"
+speedLabel.Parent = flyFrame
+speedLabel.BackgroundTransparency = 1
+speedLabel.Position = UDim2.new(0, 90, 0, 29)
+speedLabel.Size = UDim2.new(0, 90, 0, 20)
+speedLabel.Font = Enum.Font.SourceSans
+speedLabel.Text = "Speed: 50"
+speedLabel.TextColor3 = GOLD_TEXT
+speedLabel.TextSize = 12
+speedLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+local speedDown = Instance.new("TextButton")
+speedDown.Name = "SpeedDown"
+speedDown.Parent = flyFrame
+speedDown.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+speedDown.BorderColor3 = GOLD
+speedDown.BorderSizePixel = 1
+speedDown.Position = UDim2.new(0, 185, 0, 28)
+speedDown.Size = UDim2.new(0, 25, 0, 22)
+speedDown.Font = Enum.Font.SourceSans
+speedDown.Text = "-"
+speedDown.TextColor3 = GOLD_TEXT
+speedDown.TextSize = 14
+
+local speedUp = Instance.new("TextButton")
+speedUp.Name = "SpeedUp"
+speedUp.Parent = flyFrame
+speedUp.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+speedUp.BorderColor3 = GOLD
+speedUp.BorderSizePixel = 1
+speedUp.Position = UDim2.new(0, 216, 0, 28)
+speedUp.Size = UDim2.new(0, 25, 0, 22)
+speedUp.Font = Enum.Font.SourceSans
+speedUp.Text = "+"
+speedUp.TextColor3 = GOLD_TEXT
+speedUp.TextSize = 14
+-- HOOHGui R6 Fly Controller
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+
+local LocalPlayer = Players.LocalPlayer
+
+local flyEnabled = false
+local flySpeed = 50
+
+local flyConnection
+local flyVelocity
+local flyGyro
+local flyHumanoid
+local flyRoot
+local animateScript
+local oldAnimateState
+
+local function stopFly()
+    flyEnabled = false
+
+    if flyConnection then
+        flyConnection:Disconnect()
+        flyConnection = nil
+    end
+
+    if flyVelocity then
+        flyVelocity:Destroy()
+        flyVelocity = nil
+    end
+
+    if flyGyro then
+        flyGyro:Destroy()
+        flyGyro = nil
+    end
+
+    if flyHumanoid and flyHumanoid.Parent then
+        flyHumanoid.PlatformStand = false
+        flyHumanoid.AutoRotate = true
+        flyHumanoid:ChangeState(
+            Enum.HumanoidStateType.GettingUp
+        )
+    end
+
+    if animateScript and animateScript.Parent then
+        animateScript.Disabled = oldAnimateState
+    end
+
+    if flyRoot and flyRoot.Parent then
+        flyRoot.AssemblyLinearVelocity = Vector3.zero
+        flyRoot.AssemblyAngularVelocity = Vector3.zero
+    end
+
+    flyHumanoid = nil
+    flyRoot = nil
+    animateScript = nil
+end
+
+local function startFly()
+    stopFly()
+
+    local character = LocalPlayer.Character
+    if not character then return end
+
+    local humanoid = character:FindFirstChildOfClass("Humanoid")
+    local root = character:FindFirstChild("HumanoidRootPart")
+
+    if not humanoid or not root then return end
+
+    if humanoid.RigType ~= Enum.HumanoidRigType.R6 then
+        return
+    end
+
+    flyEnabled = true
+    flyHumanoid = humanoid
+    flyRoot = root
+
+    animateScript = character:FindFirstChild("Animate")
+
+    if animateScript then
+        oldAnimateState = animateScript.Disabled
+        animateScript.Disabled = true
+    end
+
+    -- Keep R6 arms in their natural resting pose
+    local torso = character:FindFirstChild("Torso")
+
+    if torso then
+        for _, jointName in ipairs({
+            "Right Shoulder",
+            "Left Shoulder"
+        }) do
+            local joint = torso:FindFirstChild(jointName)
+            if joint and joint:IsA("Motor6D") then
+                joint.Transform = CFrame.identity
+            end
+        end
+    end
+
+    humanoid.AutoRotate = false
+    humanoid.PlatformStand = true
+    humanoid:ChangeState(
+        Enum.HumanoidStateType.Physics
+    )
+
+    flyVelocity = Instance.new("BodyVelocity")
+    flyVelocity.Name = "HOOH_FlyVelocity"
+    flyVelocity.MaxForce = Vector3.new(
+        math.huge,
+        math.huge,
+        math.huge
+    )
+    flyVelocity.P = 12500
+    flyVelocity.Velocity = Vector3.zero
+    flyVelocity.Parent = root
+
+    flyGyro = Instance.new("BodyGyro")
+    flyGyro.Name = "HOOH_FlyGyro"
+    flyGyro.MaxTorque = Vector3.new(
+        math.huge,
+        math.huge,
+        math.huge
+    )
+    flyGyro.P = 15000
+    flyGyro.D = 500
+    flyGyro.CFrame = root.CFrame
+    flyGyro.Parent = root
+
+    flyConnection = RunService.RenderStepped:Connect(function()
+        if not flyEnabled or not root.Parent then
+            stopFly()
+            return
+        end
+
+        local camera = workspace.CurrentCamera
+        if not camera then return end
+
+        -- Movement follows camera direction
+        local direction = camera.CFrame.LookVector
+
+        flyVelocity.Velocity = direction * flySpeed
+
+        -- Rotate the character with the camera
+        flyGyro.CFrame =
+            CFrame.new(root.Position) * camera.CFrame.Rotation
+
+        -- Keep both arms naturally lowered
+        if torso then
+            for _, jointName in ipairs({
+                "Right Shoulder",
+                "Left Shoulder"
+            }) do
+                local joint = torso:FindFirstChild(jointName)
+                if joint and joint:IsA("Motor6D") then
+                    joint.Transform = CFrame.identity
+                end
+            end
+        end
+    end)
+end
+
+local function updateFlyUI()
+    flyToggle.Text = flyEnabled and "ON" or "OFF"
+    speedLabel.Text = "Speed: " .. tostring(flySpeed)
+end
+
+flyToggle.MouseButton1Click:Connect(function()
+    if flyEnabled then
+        stopFly()
+    else
+        startFly()
+    end
+
+    updateFlyUI()
+end)
+
+speedDown.MouseButton1Click:Connect(function()
+    flySpeed = math.max(10, flySpeed - 10)
+    updateFlyUI()
+end)
+
+speedUp.MouseButton1Click:Connect(function()
+    flySpeed = math.min(200, flySpeed + 10)
+    updateFlyUI()
+end)
+
+LocalPlayer.CharacterAdded:Connect(function()
+    stopFly()
+    updateFlyUI()
+end)
+
+updateFlyUI()
 local right = Instance.new("Frame")
 right.Name = "PlayerInfo"
 right.Position = UDim2.new(0.5, 1, 0, 0)
