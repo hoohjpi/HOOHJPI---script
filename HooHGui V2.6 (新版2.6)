@@ -864,9 +864,9 @@ local function getEstimatedDate(target)
 
     local dateText = string.format(
         "%d/%d/%d",
-        dateInfo.month,
-        dateInfo.day,
-        dateInfo.year
+        dateInfo.Month,
+        dateInfo.Day,
+        dateInfo.Year
     )
     accountDateCache[target] = dateText
     return dateText
@@ -893,9 +893,9 @@ getEstimatedDate = function(target)
 
         return string.format(
             "%d/%d/%d",
-            dateInfo.month,
-            dateInfo.day,
-            dateInfo.year
+            dateInfo.Month,
+            dateInfo.Day,
+            dateInfo.Year
         )
     end)
 
