@@ -868,6 +868,54 @@ savePage.Size = detail.Size
 savePage.BackgroundTransparency = 1
 savePage.Visible = false
 savePage.Parent = right
+-- Right Side Empty Page Toggle
+local currentRightPage = "Players"
+
+-- Reserve space for the right-side toggle button
+right.Size = UDim2.new(0.5, -19, 1, 0)
+
+-- Toggle Button
+local pageToggle = Instance.new("TextButton")
+pageToggle.Name = "RightPageToggle"
+pageToggle.Position = UDim2.new(1, -18, 0, 0)
+pageToggle.Size = UDim2.new(0, 18, 1, 0)
+pageToggle.BackgroundColor3 = Color3.fromRGB(5, 5, 5)
+pageToggle.BorderColor3 = GOLD
+pageToggle.BorderSizePixel = 1
+pageToggle.Text = "›"
+pageToggle.TextColor3 = GOLD_TEXT
+pageToggle.Font = Enum.Font.SourceSansBold
+pageToggle.TextSize = 18
+pageToggle.AutoButtonColor = true
+pageToggle.ZIndex = 5
+pageToggle.Parent = content
+
+-- Empty Page
+local emptyPage = Instance.new("Frame")
+emptyPage.Name = "EmptyPage"
+emptyPage.Position = right.Position
+emptyPage.Size = right.Size
+emptyPage.BackgroundTransparency = 1
+emptyPage.BorderSizePixel = 0
+emptyPage.Visible = false
+emptyPage.Parent = content
+
+-- Page Switching
+local function switchRightPage()
+    if currentRightPage == "Players" then
+        currentRightPage = "Empty"
+
+        right.Visible = false
+        emptyPage.Visible = true
+    else
+        currentRightPage = "Players"
+
+        emptyPage.Visible = false
+        right.Visible = true
+    end
+end
+
+pageToggle.MouseButton1Click:Connect(switchRightPage)
 local saveBackButton = makeSaveButton(
     savePage,
     "SavePageBackButton",
