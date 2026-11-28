@@ -899,6 +899,370 @@ emptyPage.BackgroundTransparency = 1
 emptyPage.BorderSizePixel = 0
 emptyPage.Visible = false
 emptyPage.Parent = content
+-- Extra Page: Player Search + Player Profile
+
+-- Extra Title
+local extraTitle = Instance.new("TextLabel")
+extraTitle.Name = "ExtraTitle"
+extraTitle.Size = UDim2.new(1, 0, 0, 33)
+extraTitle.BackgroundTransparency = 1
+extraTitle.Text = "Extra"
+extraTitle.TextColor3 = GOLD_TEXT
+extraTitle.Font = Enum.Font.SourceSansLight
+extraTitle.TextSize = 14
+extraTitle.TextXAlignment = Enum.TextXAlignment.Center
+extraTitle.Parent = emptyPage
+
+-- Search Bar Background
+local extraSearchFrame = Instance.new("Frame")
+extraSearchFrame.Name = "ExtraSearchFrame"
+extraSearchFrame.Position = UDim2.new(0, 5, 0, 38)
+extraSearchFrame.Size = UDim2.new(1, -10, 0, 24)
+extraSearchFrame.BackgroundColor3 = Color3.fromRGB(8, 8, 8)
+extraSearchFrame.BorderColor3 = GOLD
+extraSearchFrame.BorderSizePixel = 1
+extraSearchFrame.Parent = emptyPage
+
+-- Search Character
+local extraSearchIcon = Instance.new("TextLabel")
+extraSearchIcon.Name = "SearchCharacter"
+extraSearchIcon.Position = UDim2.new(0, 3, 0, 0)
+extraSearchIcon.Size = UDim2.new(0, 22, 1, 0)
+extraSearchIcon.BackgroundTransparency = 1
+extraSearchIcon.Text = "⌕"
+extraSearchIcon.TextColor3 = GOLD_TEXT
+extraSearchIcon.Font = Enum.Font.SourceSans
+extraSearchIcon.TextSize = 20
+extraSearchIcon.TextXAlignment = Enum.TextXAlignment.Center
+extraSearchIcon.Parent = extraSearchFrame
+
+-- Search Input
+local extraSearchBox = Instance.new("TextBox")
+extraSearchBox.Name = "ExtraSearchBox"
+extraSearchBox.Position = UDim2.new(0, 26, 0, 0)
+extraSearchBox.Size = UDim2.new(1, -29, 1, 0)
+extraSearchBox.BackgroundTransparency = 1
+extraSearchBox.BorderSizePixel = 0
+extraSearchBox.Text = ""
+extraSearchBox.PlaceholderText = "Search Player..."
+extraSearchBox.PlaceholderColor3 = Color3.fromRGB(125, 110, 85)
+extraSearchBox.TextColor3 = GOLD_TEXT
+extraSearchBox.Font = Enum.Font.SourceSans
+extraSearchBox.TextSize = 11
+extraSearchBox.TextXAlignment = Enum.TextXAlignment.Left
+extraSearchBox.ClearTextOnFocus = false
+extraSearchBox.Parent = extraSearchFrame
+
+-- Search Results
+local extraResults = Instance.new("ScrollingFrame")
+extraResults.Name = "ExtraSearchResults"
+extraResults.Position = UDim2.new(0, 5, 0, 68)
+extraResults.Size = UDim2.new(1, -10, 1, -73)
+extraResults.BackgroundTransparency = 1
+extraResults.BorderSizePixel = 0
+extraResults.ScrollBarThickness = 3
+extraResults.ScrollBarImageColor3 = GOLD
+extraResults.CanvasSize = UDim2.new(0, 0, 0, 0)
+extraResults.AutomaticCanvasSize = Enum.AutomaticSize.Y
+extraResults.ScrollingDirection = Enum.ScrollingDirection.Y
+extraResults.Active = true
+extraResults.Parent = emptyPage
+
+local extraResultsLayout = Instance.new("UIListLayout")
+extraResultsLayout.Name = "ExtraResultsLayout"
+extraResultsLayout.Padding = UDim.new(0, 3)
+extraResultsLayout.SortOrder = Enum.SortOrder.LayoutOrder
+extraResultsLayout.Parent = extraResults
+-- Player Profile Popup
+local profilePopup = Instance.new("Frame")
+profilePopup.Name = "PlayerProfilePopup"
+profilePopup.AnchorPoint = Vector2.new(0.5, 0.5)
+profilePopup.Position = UDim2.new(0.5, 0, 0.5, 0)
+profilePopup.Size = UDim2.new(1, -16, 1, -16)
+profilePopup.BackgroundColor3 = Color3.fromRGB(5, 5, 5)
+profilePopup.BorderColor3 = GOLD
+profilePopup.BorderSizePixel = 2
+profilePopup.Visible = false
+profilePopup.ZIndex = 20
+profilePopup.Parent = emptyPage
+
+-- Profile Title
+local profileTitle = Instance.new("TextLabel")
+profileTitle.Name = "ProfileTitle"
+profileTitle.Position = UDim2.new(0, 5, 0, 3)
+profileTitle.Size = UDim2.new(1, -35, 0, 25)
+profileTitle.BackgroundTransparency = 1
+profileTitle.Text = "PLAYER PROFILE"
+profileTitle.TextColor3 = GOLD_TEXT
+profileTitle.Font = Enum.Font.SourceSansLight
+profileTitle.TextSize = 15
+profileTitle.ZIndex = 21
+profileTitle.Parent = profilePopup
+
+-- Close Button
+local profileClose = Instance.new("TextButton")
+profileClose.Name = "ProfileClose"
+profileClose.Position = UDim2.new(1, -27, 0, 3)
+profileClose.Size = UDim2.new(0, 23, 0, 23)
+profileClose.BackgroundColor3 = Color3.fromRGB(12, 12, 12)
+profileClose.BorderColor3 = GOLD
+profileClose.BorderSizePixel = 1
+profileClose.Text = "×"
+profileClose.TextColor3 = GOLD_TEXT
+profileClose.Font = Enum.Font.SourceSans
+profileClose.TextSize = 18
+profileClose.ZIndex = 22
+profileClose.Parent = profilePopup
+
+-- Username
+local profileUsername = Instance.new("TextLabel")
+profileUsername.Name = "ProfileUsername"
+profileUsername.Position = UDim2.new(0, 8, 0, 35)
+profileUsername.Size = UDim2.new(1, -16, 0, 22)
+profileUsername.BackgroundTransparency = 1
+profileUsername.Text = "Username: --"
+profileUsername.TextColor3 = GOLD_TEXT
+profileUsername.Font = Enum.Font.SourceSans
+profileUsername.TextSize = 13
+profileUsername.TextXAlignment = Enum.TextXAlignment.Left
+profileUsername.TextTruncate = Enum.TextTruncate.AtEnd
+profileUsername.ZIndex = 21
+profileUsername.Parent = profilePopup
+
+-- Display Name
+local profileDisplayName = Instance.new("TextLabel")
+profileDisplayName.Name = "ProfileDisplayName"
+profileDisplayName.Position = UDim2.new(0, 8, 0, 60)
+profileDisplayName.Size = UDim2.new(1, -16, 0, 22)
+profileDisplayName.BackgroundTransparency = 1
+profileDisplayName.Text = "Display Name: --"
+profileDisplayName.TextColor3 = GOLD_TEXT
+profileDisplayName.Font = Enum.Font.SourceSans
+profileDisplayName.TextSize = 12
+profileDisplayName.TextXAlignment = Enum.TextXAlignment.Left
+profileDisplayName.TextTruncate = Enum.TextTruncate.AtEnd
+profileDisplayName.ZIndex = 21
+profileDisplayName.Parent = profilePopup
+
+-- User ID
+local profileUserId = Instance.new("TextLabel")
+profileUserId.Name = "ProfileUserId"
+profileUserId.Position = UDim2.new(0, 8, 0, 85)
+profileUserId.Size = UDim2.new(1, -16, 0, 22)
+profileUserId.BackgroundTransparency = 1
+profileUserId.Text = "User ID: --"
+profileUserId.TextColor3 = GOLD_TEXT
+profileUserId.Font = Enum.Font.SourceSans
+profileUserId.TextSize = 12
+profileUserId.TextXAlignment = Enum.TextXAlignment.Left
+profileUserId.TextTruncate = Enum.TextTruncate.AtEnd
+profileUserId.ZIndex = 21
+profileUserId.Parent = profilePopup
+-- Avatar Background
+local avatarFrame = Instance.new("Frame")
+avatarFrame.Name = "AvatarFrame"
+avatarFrame.Position = UDim2.new(0.5, 0, 0, 116)
+avatarFrame.AnchorPoint = Vector2.new(0.5, 0)
+avatarFrame.Size = UDim2.new(0, 125, 0, 125)
+avatarFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
+avatarFrame.BorderColor3 = GOLD
+avatarFrame.BorderSizePixel = 1
+avatarFrame.ZIndex = 21
+avatarFrame.Parent = profilePopup
+
+-- Avatar Image
+local avatarImage = Instance.new("ImageLabel")
+avatarImage.Name = "AvatarImage"
+avatarImage.Position = UDim2.new(0, 3, 0, 3)
+avatarImage.Size = UDim2.new(1, -6, 1, -6)
+avatarImage.BackgroundTransparency = 1
+avatarImage.Image = ""
+avatarImage.ScaleType = Enum.ScaleType.Fit
+avatarImage.ZIndex = 22
+avatarImage.Parent = avatarFrame
+
+-- Avatar Loading Text
+local avatarLoading = Instance.new("TextLabel")
+avatarLoading.Name = "AvatarLoading"
+avatarLoading.Size = UDim2.new(1, 0, 1, 0)
+avatarLoading.BackgroundTransparency = 1
+avatarLoading.Text = "Loading..."
+avatarLoading.TextColor3 = GOLD_TEXT
+avatarLoading.Font = Enum.Font.SourceSans
+avatarLoading.TextSize = 11
+avatarLoading.ZIndex = 23
+avatarLoading.Parent = avatarFrame
+
+-- Close Profile
+profileClose.MouseButton1Click:Connect(function()
+    profilePopup.Visible = false
+end)
+
+-- Open Player Profile
+local profileRequestId = 0
+
+local function openPlayerProfile(target)
+    if not target or target.Parent ~= Players then
+        return
+    end
+
+    profileRequestId = profileRequestId + 1
+    local requestId = profileRequestId
+    local userId = target.UserId
+
+    profilePopup.Visible = true
+
+    profileUsername.Text = "Username: " .. target.Name
+    profileDisplayName.Text = "Display Name: " .. target.DisplayName
+    profileUserId.Text = "User ID: " .. tostring(userId)
+
+    avatarImage.Image = ""
+    avatarLoading.Visible = true
+    avatarLoading.Text = "Loading..."
+
+    task.spawn(function()
+        local success, thumbnail, isReady = pcall(function()
+            return Players:GetUserThumbnailAsync(
+                userId,
+                Enum.ThumbnailType.HeadShot,
+                Enum.ThumbnailSize.Size420x420
+            )
+        end)
+
+        local attempts = 0
+
+        while success and not isReady and attempts < 5 do
+            task.wait(0.5)
+            attempts = attempts + 1
+
+            success, thumbnail, isReady = pcall(function()
+                return Players:GetUserThumbnailAsync(
+                    userId,
+                    Enum.ThumbnailType.HeadShot,
+                    Enum.ThumbnailSize.Size420x420
+                )
+            end)
+        end
+
+        if requestId ~= profileRequestId then
+            return
+        end
+
+        if not profilePopup.Visible then
+            return
+        end
+
+        if success and thumbnail and isReady then
+            avatarImage.Image = thumbnail
+            avatarLoading.Visible = false
+        else
+            avatarLoading.Text = "Avatar Unavailable"
+        end
+    end)
+end
+-- Clear Old Search Results
+local function clearExtraResults()
+    for _, child in ipairs(extraResults:GetChildren()) do
+        if child:IsA("TextButton") or child:IsA("TextLabel") then
+            child:Destroy()
+        end
+    end
+end
+
+-- Render Search Results
+local function renderExtraSearch()
+    clearExtraResults()
+
+    local query = string.lower(extraSearchBox.Text or "")
+    local shown = 0
+
+    for _, target in ipairs(Players:GetPlayers()) do
+        local username = string.lower(target.Name)
+        local displayName = string.lower(target.DisplayName)
+
+        local matches = query == ""
+            or string.find(username, query, 1, true)
+            or string.find(displayName, query, 1, true)
+
+        if matches then
+            shown = shown + 1
+
+            local row = Instance.new("TextButton")
+            row.Name = "SearchPlayer_" .. tostring(target.UserId)
+            row.Size = UDim2.new(1, -3, 0, 36)
+            row.BackgroundColor3 = Color3.fromRGB(8, 8, 8)
+            row.BorderSizePixel = 1
+            row.BorderColor3 = Color3.fromRGB(55, 45, 28)
+            row.Text = ""
+            row.LayoutOrder = shown
+            row.Parent = extraResults
+
+            local usernameLabel = Instance.new("TextLabel")
+            usernameLabel.Position = UDim2.new(0, 5, 0, 1)
+            usernameLabel.Size = UDim2.new(1, -10, 0, 17)
+            usernameLabel.BackgroundTransparency = 1
+            usernameLabel.Text = target.Name
+            usernameLabel.TextColor3 = GOLD_TEXT
+            usernameLabel.Font = Enum.Font.SourceSans
+            usernameLabel.TextSize = 12
+            usernameLabel.TextXAlignment = Enum.TextXAlignment.Left
+            usernameLabel.TextTruncate = Enum.TextTruncate.AtEnd
+            usernameLabel.Parent = row
+
+            local displayLabel = Instance.new("TextLabel")
+            displayLabel.Position = UDim2.new(0, 5, 0, 17)
+            displayLabel.Size = UDim2.new(1, -10, 0, 15)
+            displayLabel.BackgroundTransparency = 1
+            displayLabel.Text = target.DisplayName
+            displayLabel.TextColor3 = GOLD
+            displayLabel.Font = Enum.Font.SourceSans
+            displayLabel.TextSize = 10
+            displayLabel.TextXAlignment = Enum.TextXAlignment.Left
+            displayLabel.TextTruncate = Enum.TextTruncate.AtEnd
+            displayLabel.Parent = row
+
+            row.MouseButton1Click:Connect(function()
+                openPlayerProfile(target)
+            end)
+        end
+    end
+
+    if shown == 0 then
+        local emptyLabel = Instance.new("TextLabel")
+        emptyLabel.Name = "NoSearchResults"
+        emptyLabel.Size = UDim2.new(1, 0, 0, 25)
+        emptyLabel.BackgroundTransparency = 1
+        emptyLabel.Text = "No Players Found"
+        emptyLabel.TextColor3 = GOLD_TEXT
+        emptyLabel.Font = Enum.Font.SourceSans
+        emptyLabel.TextSize = 11
+        emptyLabel.Parent = extraResults
+    end
+end
+
+-- Live Search
+extraSearchBox:GetPropertyChangedSignal("Text"):Connect(function()
+    renderExtraSearch()
+end)
+
+-- Update When Players Join
+Players.PlayerAdded:Connect(function()
+    renderExtraSearch()
+end)
+
+-- Update When Players Leave
+Players.PlayerRemoving:Connect(function(leavingPlayer)
+    if profilePopup.Visible
+        and profileUserId.Text == "User ID: " .. tostring(leavingPlayer.UserId) then
+        profileRequestId = profileRequestId + 1
+        profilePopup.Visible = false
+    end
+
+    task.defer(renderExtraSearch)
+end)
+
+-- Initial Search Results
+renderExtraSearch()
 
 -- Page Switching
 local function switchRightPage()
