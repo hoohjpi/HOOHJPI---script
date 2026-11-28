@@ -595,6 +595,138 @@ LocalPlayer.CharacterAdded:Connect(function()
 end)
 
 updateFlyUI()
+-- Movement Settings UI
+local movementDivider = Instance.new("Frame")
+movementDivider.Name = "MovementDivider"
+movementDivider.Size = UDim2.new(1, -8, 0, 1)
+movementDivider.BackgroundColor3 = GOLD
+movementDivider.BorderSizePixel = 0
+movementDivider.LayoutOrder = 3
+movementDivider.Parent = miscScroll
+
+local walkSpeedValue = 16
+local jumpPowerValue = 50
+
+local function getMovementHumanoid()
+    local character = LocalPlayer.Character
+    return character and character:FindFirstChildOfClass("Humanoid")
+end
+
+local function applyWalkSpeed()
+    local humanoid = getMovementHumanoid()
+    if humanoid then
+        humanoid.WalkSpeed = walkSpeedValue
+    end
+end
+
+local function applyJumpPower()
+    local humanoid = getMovementHumanoid()
+    if humanoid then
+        humanoid.UseJumpPower = true
+        humanoid.JumpPower = jumpPowerValue
+    end
+end
+
+local function createMovementRow(name, title, value, order, onChanged)
+    local frame = Instance.new("Frame")
+    frame.Name = name
+    frame.Size = UDim2.new(1, -8, 0, 48)
+    frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    frame.BorderColor3 = GOLD
+    frame.BorderSizePixel = 1
+    frame.LayoutOrder = order
+    frame.Parent = miscScroll
+
+    local label = Instance.new("TextLabel")
+    label.Name = name .. "Label"
+    label.Position = UDim2.new(0, 8, 0, 0)
+    label.Size = UDim2.new(0, 140, 1, 0)
+    label.BackgroundTransparency = 1
+    label.Text = title .. ": " .. tostring(value)
+    label.TextColor3 = GOLD_TEXT
+    label.Font = Enum.Font.SourceSans
+    label.TextSize = 12
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    label.Parent = frame
+
+    local minus = Instance.new("TextButton")
+    minus.Name = name .. "Down"
+    minus.Position = UDim2.new(0, 154, 0, 13)
+    minus.Size = UDim2.new(0, 20, 0, 22)
+    minus.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    minus.BorderColor3 = GOLD
+    minus.BorderSizePixel = 1
+    minus.Text = "-"
+    minus.TextColor3 = GOLD_TEXT
+    minus.Font = Enum.Font.SourceSans
+    minus.TextSize = 14
+    minus.Parent = frame
+
+    local plus = Instance.new("TextButton")
+    plus.Name = name .. "Up"
+    plus.Position = UDim2.new(0, 178, 0, 13)
+    plus.Size = UDim2.new(0, 20, 0, 22)
+    plus.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    plus.BorderColor3 = GOLD
+    plus.BorderSizePixel = 1
+    plus.Text = "+"
+    plus.TextColor3 = GOLD_TEXT
+    plus.Font = Enum.Font.SourceSans
+    plus.TextSize = 14
+    plus.Parent = frame
+
+    local currentValue = value
+
+    local function updateValue()
+        label.Text = title .. ": " .. tostring(currentValue)
+        onChanged(currentValue)
+    end
+
+    minus.MouseButton1Click:Connect(function()
+        currentValue = math.max(0, currentValue - 5)
+        updateValue()
+    end)
+
+    plus.MouseButton1Click:Connect(function()
+        currentValue = math.min(200, currentValue + 5)
+        updateValue()
+    end)
+end
+
+createMovementRow(
+    "WalkSpeedFrame",
+    "WalkSpeed",
+    walkSpeedValue,
+    4,
+    function(newValue)
+        walkSpeedValue = newValue
+        applyWalkSpeed()
+    end
+)
+
+createMovementRow(
+    "SuperJumpFrame",
+    "Super Jump",
+    jumpPowerValue,
+    5,
+    function(newValue)
+        jumpPowerValue = newValue
+        applyJumpPower()
+    end
+)
+
+-- Apply settings to the current character
+applyWalkSpeed()
+applyJumpPower()
+
+-- Reapply settings after respawning
+LocalPlayer.CharacterAdded:Connect(function(character)
+    local humanoid = character:WaitForChild("Humanoid", 10)
+    if humanoid then
+        applyWalkSpeed()
+        applyJumpPower()
+    end
+end)
 local right = Instance.new("Frame")
 right.Name = "PlayerInfo"
 right.Position = UDim2.new(0.5, 1, 0, 0)
