@@ -448,10 +448,6 @@ local function startFly()
 
     if not humanoid or not root then return end
 
-    if humanoid.RigType ~= Enum.HumanoidRigType.R6 then
-        return
-    end
-
     flyEnabled = true
     flyHumanoid = humanoid
     flyRoot = root
