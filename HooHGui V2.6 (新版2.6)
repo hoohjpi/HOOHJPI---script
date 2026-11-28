@@ -580,12 +580,12 @@ flyToggle.MouseButton1Click:Connect(function()
 end)
 
 speedDown.MouseButton1Click:Connect(function()
-    flySpeed = math.max(10, flySpeed - 10)
+    flySpeed = math.max(10, flySpeed - 5)
     updateFlyUI()
 end)
 
 speedUp.MouseButton1Click:Connect(function()
-    flySpeed = math.min(200, flySpeed + 10)
+    flySpeed = math.min(200, flySpeed + 5)
     updateFlyUI()
 end)
 
